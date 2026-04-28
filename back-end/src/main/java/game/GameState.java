@@ -5,29 +5,39 @@ import java.util.Arrays;
 public class GameState {
 
     private final Cell[] cells;
+    private final String currentPlayer;
+    private final String winner;
+    private final boolean gameOver;
 
-    private GameState(Cell[] cells) {
+    private GameState(Cell[] cells, String currentPlayer, String winner, boolean gameOver) {
         this.cells = cells;
+        this.currentPlayer = currentPlayer;
+        this.winner = winner;
+        this.gameOver = gameOver;
     }
 
     public static GameState forGame(Game game) {
         Cell[] cells = getCells(game);
-        return new GameState(cells);
+        String currentPlayer = game.getPlayer() == Player.PLAYER0 ? "X" : "O";
+        Player winnerPlayer = game.getWinner();
+        String winner = null;
+        if (winnerPlayer == Player.PLAYER0) winner = "X";
+        else if (winnerPlayer == Player.PLAYER1) winner = "O";
+        else if (game.isDraw()) winner = "Draw";
+        boolean gameOver = (winnerPlayer != null) || game.isDraw();
+        return new GameState(cells, currentPlayer, winner, gameOver);
     }
 
     public Cell[] getCells() {
         return this.cells;
     }
 
-    /**
-     * toString() of GameState will return the string representing
-     * the GameState in JSON format.
-     */
     @Override
     public String toString() {
+        String winnerJson = (winner == null) ? "null" : "\"" + winner + "\"";
         return """
-                { "cells": %s}
-                """.formatted(Arrays.toString(this.cells));
+                { "cells": %s, "currentPlayer": "%s", "winner": %s, "gameOver": %b }
+                """.formatted(Arrays.toString(this.cells), this.currentPlayer, winnerJson, this.gameOver);
     }
 
     private static Cell[] getCells(Game game) {
@@ -43,7 +53,9 @@ public class GameState {
                 else if (player == Player.PLAYER1)
                     text = "O";
                 else if (player == null) {
-                    playable = true;
+                    if (game.getWinner() == null) {
+                        playable = true;
+                    }
                 }
                 cells[3 * y + x] = new Cell(x, y, text, playable);
             }
@@ -65,21 +77,10 @@ class Cell {
         this.playable = playable;
     }
 
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public String getText() {
-        return this.text;
-    }
-
-    public boolean isPlayable() {
-        return this.playable;
-    }
+    public int getX() { return x; }
+    public int getY() { return y; }
+    public String getText() { return this.text; }
+    public boolean isPlayable() { return this.playable; }
 
     @Override
     public String toString() {
