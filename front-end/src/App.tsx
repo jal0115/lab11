@@ -93,21 +93,21 @@ class App extends React.Component<Props, GameState> {
   }
 
   render(): React.ReactNode {
-    return (
-      <div>
-        <div id="instructions">
-          {this.getInstructions()}
-        </div>
-        <div id="board">
-          {this.state.cells.map((cell, i) => this.createCell(cell, i))}
-        </div>
-        <div id="bottombar">
-          <button onClick={this.newGame}>New Game</button>
-          <button onClick={this.undo}>Undo</button>
-        </div>
+  return (
+    <div>
+      <div id="instructions">
+        {this.getInstructions()}
       </div>
-    );
-  }
+      <div id="board">
+        {this.state.cells.map((cell, i) => this.createCell(cell, i))}
+      </div>
+      <div id="bottombar">
+        <button onClick={this.newGame}>New Game</button>
+        <button onClick={this.undo} disabled={this.state.gameOver}>Undo</button>
+      </div>
+    </div>
+  );
+}
 }
 
 export default App;
